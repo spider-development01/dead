@@ -112,7 +112,7 @@
     </div>
 
     <div class="container hidden" id="contact-container">
-        <form name="contact" netlify>
+        <form name="contact" action="https://dedsec-thanks-you.netlify.app/" netlify>
             <input type="hidden" name="redirect" value="https://dedsec-thanks-you.netlify.app/">
             <div class="title">DEDSEC</div>
             <input type="hidden" name="access_key" value="06d7a55d-aed7-4623-a23c-2aeed6d4b19c">
@@ -120,15 +120,23 @@
             <button type="submit" class="submit-button">Submit</button>
         </form>
     </div>
-
     <script>
-        function checkPassword() {
+        async function hashPassword(password) {
+            const msgUint8 = new TextEncoder().encode(password); // Encode as (utf-8) Uint8Array
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8); // Hash the message
+            const hashArray = Array.from(new Uint8Array(hashBuffer)); // Convert buffer to byte array
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join(''); // Convert bytes to hex string
+            return hashHex;
+        }
+
+        async function checkPassword() {
             const passwordInput = document.getElementById('password').value;
             const errorMessage = document.getElementById('error-message');
             const passwordContainer = document.getElementById('password-container');
             const contactContainer = document.getElementById('contact-container');
-
-            if (passwordInput === 'marcus') {
+            const hash = await hashPassword(passwordInput);
+            const correctHash = "ba8d632d498ba9c22cb4433f143ae658b5d5a3cad9156c54ba2d78b2cf2e53ef";
+            if (hash === correctHash) {
                 passwordContainer.classList.add('hidden');
                 contactContainer.classList.remove('hidden');
             } else {
@@ -136,5 +144,6 @@
             }
         }
     </script>
+    
 </body>
 </html>
